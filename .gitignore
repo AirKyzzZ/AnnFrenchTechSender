@@ -2,7 +2,6 @@
 *.log
 
 # Fichiers CSV (peuvent contenir des données sensibles)
-urls_entreprises.csv
 
 # Environnements virtuels Python
 venv/
