@@ -1,0 +1,5 @@
+# URLs des candidatures ayant échoué
+# Date: 2025-10-08 16:50:24
+# Total: 1 échecs
+
+https://annuaire.frenchtechbordeaux.com/organisations/a7
