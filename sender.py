@@ -33,15 +33,15 @@ logging.basicConfig(
 )
 
 if DRY_RUN:
-    print("⚠️  MODE TEST ACTIVÉ - Aucune candidature ne sera réellement envoyée\n")
+    print("[!] MODE TEST ACTIVE - Aucune candidature ne sera reellement envoyee\n")
 
 if not MODE_VISIBLE:
-    print("🔇 MODE ARRIÈRE-PLAN - Chrome tourne en arrière-plan (headless)")
-    print("   → Vous pouvez éteindre votre écran ou faire autre chose")
-    print("   → Utilisez '--visible' pour voir Chrome en action")
-    print("\n💡 Important pour écran débranché :")
-    print("   → Vérifiez que Windows ne met pas l'ordinateur en veille")
-    print("   → Paramètres > Système > Alimentation > Mise en veille : Jamais\n")
+    print("[MODE ARRIERE-PLAN] Chrome tourne en arriere-plan (headless)")
+    print("   > Vous pouvez eteindre votre ecran ou faire autre chose")
+    print("   > Utilisez '--visible' pour voir Chrome en action")
+    print("\n[IMPORTANT] Pour ecran debranche :")
+    print("   > Verifiez que Windows ne met pas l'ordinateur en veille")
+    print("   > Parametres > Systeme > Alimentation > Mise en veille : Jamais\n")
 
 # Paramètres du candidat
 CANDIDATURE = {
@@ -93,7 +93,7 @@ with open("urls_entreprises.csv", "r") as f:
 # Limiter à 5 si mode test-5
 if TEST_5:
     URLS_ENTREPRISES = URLS_ENTREPRISES[:5]
-    print("⚠️  MODE TEST-5 : Seulement 5 entreprises seront traitées\n")
+    print("[!] MODE TEST-5 : Seulement 5 entreprises seront traitees\n")
 
 logging.info(f"{len(URLS_ENTREPRISES)} organisations à contacter (après filtrage de la liste noire).")
 
@@ -122,11 +122,11 @@ def initialiser_driver():
     if not MODE_VISIBLE:
         options.add_argument("--headless=new")  # Mode headless (pas de fenêtre)
         options.add_argument("--window-size=1920,1080")  # Taille de fenêtre virtuelle
-        print("   🔇 Mode arrière-plan activé (headless)")
+        print("   [MODE ARRIERE-PLAN] Mode arriere-plan active (headless)")
         logging.info("Chrome lancé en mode headless (arrière-plan)")
     else:
         options.add_argument("--start-maximized")  # Fenêtre maximisée pour mieux voir
-        print("   👁️  Mode visible activé (avec fenêtre Chrome)")
+        print("   [MODE VISIBLE] Mode visible active (avec fenetre Chrome)")
         logging.info("Chrome lancé en mode visible")
     
     # Options essentielles pour stabilité
@@ -208,7 +208,7 @@ def forcer_relance_session(raison=""):
     global driver, heure_debut_session
     
     print(f"\n{'='*60}")
-    print(f"🔄 RELANCE FORCÉE DE CHROME")
+    print(f"[RELANCE] RELANCE FORCEE DE CHROME")
     if raison:
         print(f"Raison : {raison}")
     print(f"{'='*60}\n")
@@ -224,13 +224,13 @@ def forcer_relance_session(raison=""):
     
     # Pause courte mais suffisante pour contourner la détection
     pause_secondes = random.randint(8, 15)
-    print(f"⏸️  Pause de {pause_secondes} secondes pour contourner la détection...")
+    print(f"[PAUSE] Pause de {pause_secondes} secondes pour contourner la detection...")
     time.sleep(pause_secondes)
     
     # Relancer un nouveau navigateur
-    print(f"🌐 Lancement d'une nouvelle instance de Chrome...")
+    print(f"[CHROME] Lancement d'une nouvelle instance de Chrome...")
     initialiser_driver()
-    print(f"✓ Nouveau navigateur prêt !\n")
+    print(f"[OK] Nouveau navigateur pret !\n")
 
 def verifier_et_relancer_session():
     """
@@ -247,8 +247,8 @@ def verifier_et_relancer_session():
     
     if minutes_ecoulees >= DUREE_SESSION_MINUTES:
         print(f"\n{'='*60}")
-        print(f"⏰ Session en cours depuis {minutes_ecoulees:.1f} minutes")
-        print(f"🔄 Relance d'une nouvelle instance de Chrome pour éviter la détection")
+        print(f"[SESSION] Session en cours depuis {minutes_ecoulees:.1f} minutes")
+        print(f"[RELANCE] Relance d'une nouvelle instance de Chrome pour eviter la detection")
         print(f"{'='*60}\n")
         logging.info(f"Rotation du navigateur après {minutes_ecoulees:.1f} minutes d'utilisation")
         
@@ -261,17 +261,17 @@ def verifier_et_relancer_session():
                 pass
         
         # Pause de 4 minutes pour simuler un comportement humain
-        print(f"⏸️  Pause de {PAUSE_ENTRE_SESSIONS_MINUTES} minutes pour éviter la détection...")
+        print(f"[PAUSE] Pause de {PAUSE_ENTRE_SESSIONS_MINUTES} minutes pour eviter la detection...")
         for i in range(PAUSE_ENTRE_SESSIONS_MINUTES, 0, -1):
-            print(f"   ⏱️  {i} minute{'s' if i > 1 else ''} restante{'s' if i > 1 else ''}...", end='\r')
+            print(f"   [TIMER] {i} minute{'s' if i > 1 else ''} restante{'s' if i > 1 else ''}...", end='\r')
             time.sleep(60)  # Pause de 1 minute
-        print(f"\n   ✓ Pause terminée !\n")
+        print(f"\n   [OK] Pause terminee !\n")
         logging.info(f"Pause de {PAUSE_ENTRE_SESSIONS_MINUTES} minutes terminée")
         
         # Relancer un nouveau navigateur
-        print(f"🌐 Lancement d'une nouvelle instance de Chrome...")
+        print(f"[CHROME] Lancement d'une nouvelle instance de Chrome...")
         initialiser_driver()
-        print(f"✓ Nouveau navigateur prêt !\n")
+        print(f"[OK] Nouveau navigateur pret !\n")
 
 # Initialiser Selenium (sauf en mode test)
 if not DRY_RUN:
@@ -300,12 +300,12 @@ def envoyer_candidature(url, tentative=1, max_tentatives=5):
     
     try:
         # Charger la page
-        print(f"   → Chargement de la page...")
+        print(f"   > Chargement de la page...")
         driver.get(url)
         time.sleep(2)  # Attendre que la page charge
 
         # Remplir le formulaire RAPIDEMENT
-        print(f"   → Remplissage du formulaire...")
+        print(f"   > Remplissage du formulaire...")
         
         driver.find_element(By.NAME, "organization_contact[last_name]").send_keys(CANDIDATURE["nom"])
         driver.find_element(By.NAME, "organization_contact[first_name]").send_keys(CANDIDATURE["prenom"])
@@ -314,11 +314,11 @@ def envoyer_candidature(url, tentative=1, max_tentatives=5):
         driver.find_element(By.NAME, "organization_contact[subject]").send_keys(CANDIDATURE["objet"])
         driver.find_element(By.NAME, "organization_contact[message]").send_keys(CANDIDATURE["message"])
         
-        print(f"   ✓ Formulaire rempli")
+        print(f"   [OK] Formulaire rempli")
         time.sleep(1)  # Petite pause après remplissage
         
         # ÉTAPE CRITIQUE : Attendre que le bouton soit prêt ("Envoyer" et non disabled)
-        print(f"   → Attente de la vérification anti-bot...")
+        print(f"   > Attente de la verification anti-bot...")
         
         max_attente = 240  # 4 minutes maximum
         temps_debut_attente = time.time()
@@ -333,11 +333,12 @@ def envoyer_candidature(url, tentative=1, max_tentatives=5):
                 est_disabled = submit_button.get_attribute("disabled")
                 
                 temps_ecoule = int(time.time() - temps_debut_attente)
-                print(f"   ⏱️  {temps_ecoule}s - Bouton: '{bouton_value}' | Disabled: {est_disabled is not None}", end='\r')
+                # Formater avec une largeur fixe pour éviter les problèmes d'affichage après 100s
+                print(f"   [TIMER] {temps_ecoule:3d}s - Bouton: '{bouton_value}' | Disabled: {est_disabled is not None}".ljust(100), end='\r')
                 
                 # Le bouton est prêt si le texte est "Envoyer" OU si disabled=False
                 if est_disabled is None and ("envoyer" in bouton_value.lower() or "envoi" in bouton_value.lower()):
-                    print(f"\n   ✅ Bouton prêt : '{bouton_value}' (après {temps_ecoule}s)")
+                    print(f"\n   [OK] Bouton pret : '{bouton_value}' (apres {temps_ecoule}s)")
                     bouton_pret = True
                     break
                 
@@ -345,65 +346,65 @@ def envoyer_candidature(url, tentative=1, max_tentatives=5):
                 time.sleep(2)
                 
             except Exception as e:
-                print(f"\n   ⚠️  Erreur lors de la vérification du bouton : {e}")
+                print(f"\n   [!] Erreur lors de la verification du bouton : {e}")
                 time.sleep(2)
         
         if not bouton_pret:
             # Le bouton n'est pas devenu prêt après 4 minutes
-            print(f"\n   ❌ Le bouton n'est pas devenu 'Envoyer' après {max_attente}s")
-            print(f"   🔄 Refresh de la page et nouvelle tentative...")
+            print(f"\n   [ERREUR] Le bouton n'est pas devenu 'Envoyer' apres {max_attente}s")
+            print(f"   [REFRESH] Refresh de la page et nouvelle tentative...")
             logging.warning(f"Timeout d'attente du bouton pour {url} - Refresh nécessaire")
             
             if tentative < max_tentatives:
                 # Refresh la page (pas besoin de relancer Chrome)
                 driver.refresh()
                 time.sleep(3)
-                print(f"   ♻️  Nouvelle tentative après refresh (tentative {tentative + 1}/{max_tentatives})...")
+                print(f"   [RETRY] Nouvelle tentative apres refresh (tentative {tentative + 1}/{max_tentatives})...")
                 return envoyer_candidature(url, tentative + 1, max_tentatives)
             else:
-                print(f"   ✗ Échec après {max_tentatives} tentatives")
+                print(f"   [ECHEC] Echec apres {max_tentatives} tentatives")
                 logging.error(f"Échec après {max_tentatives} tentatives pour {url}")
                 return False
         
         # Le bouton est prêt, on peut cliquer
         try:
-            print(f"   → Clic sur le bouton d'envoi...")
+            print(f"   > Clic sur le bouton d'envoi...")
             submit_button.click()
         except Exception as e:
-            print(f"   ⚠️  Erreur lors du clic : {e}")
+            print(f"   [!] Erreur lors du clic : {e}")
             return False
         
-        print(f"   → Attente de la réponse du serveur...")
+        print(f"   > Attente de la reponse du serveur...")
         time.sleep(3)  # Attente de la réponse
 
         # VÉRIFIER le résultat : chercher le message de confirmation OU l'erreur 422
-        print(f"   → Vérification du résultat...")
+        print(f"   > Verification du resultat...")
         page_text = driver.find_element(By.TAG_NAME, "body").text
         
         # Vérifier s'il y a une erreur 422
         if "422" in page_text:
-            print(f"   ⚠️  ERREUR 422 détectée (tentative {tentative}/{max_tentatives})")
+            print(f"   [!] ERREUR 422 detectee (tentative {tentative}/{max_tentatives})")
             logging.warning(f"⚠️  Erreur 422 pour {url} (tentative {tentative}/{max_tentatives})")
             
             # Si c'est la première tentative, on réessaye (souvent le 2ème envoi passe)
             if tentative < max_tentatives:
-                print(f"   → Nouvelle tentative dans 3 secondes...")
+                print(f"   > Nouvelle tentative dans 3 secondes...")
                 logging.info(f"→ Nouvelle tentative après erreur 422...")
                 time.sleep(3)  # Pause avant de réessayer
                 return envoyer_candidature(url, tentative + 1, max_tentatives)
             else:
-                print(f"   ✗ Erreur 422 persistante")
+                print(f"   [ECHEC] Erreur 422 persistante")
                 logging.error(f"✗ Erreur 422 persistante après {max_tentatives} tentatives pour {url}")
                 return False
         
         # Vérifier le message de confirmation
         if "Votre message a bien été envoyé" in page_text or "bien été envoyé" in page_text:
-            print(f"   ✓ MESSAGE DE CONFIRMATION DÉTECTÉ !")
+            print(f"   [OK] MESSAGE DE CONFIRMATION DETECTE !")
             logging.info(f"✓ Candidature CONFIRMÉE avec succès à {url}")
             return True
         else:
             # Pas d'erreur 422 mais pas de confirmation non plus
-            print(f"   ⚠️  Aucun message de confirmation trouvé")
+            print(f"   [!] Aucun message de confirmation trouve")
             print(f"   Extrait de la page : {page_text[:150]}...")
             logging.warning(f"⚠️  Résultat incertain pour {url} - Pas de message de confirmation clair")
             # On considère comme un échec car pas de confirmation
@@ -440,23 +441,23 @@ def envoyer_candidature(url, tentative=1, max_tentatives=5):
 
 # Parcourir la liste des entreprises et envoyer les candidatures
 print(f"\n{'='*60}")
-print(f"Début de l'envoi des candidatures")
+print(f"Debut de l'envoi des candidatures")
 print(f"{'='*60}")
-print(f"📊 Organisations : {len(URLS_ENTREPRISES)} à contacter")
-print(f"🚫 Liste noire : {len(BLACKLIST)} ignorées")
-print(f"\n⚡ Mode RAPIDE + ATTENTE INTELLIGENTE :")
-print(f"   → Remplissage ultra-rapide du formulaire (~3 secondes)")
-print(f"   → Attente automatique que le bouton devienne 'Envoyer'")
-print(f"   → Maximum 5 tentatives par entreprise (avec refresh)")
-print(f"   → Pas de comportement humain superflu (gain de temps)")
+print(f"[STATS] Organisations : {len(URLS_ENTREPRISES)} a contacter")
+print(f"[BLACKLIST] Liste noire : {len(BLACKLIST)} ignorees")
+print(f"\n[MODE] Mode RAPIDE + ATTENTE INTELLIGENTE :")
+print(f"   > Remplissage ultra-rapide du formulaire (~3 secondes)")
+print(f"   > Attente automatique que le bouton devienne 'Envoyer'")
+print(f"   > Maximum 5 tentatives par entreprise (avec refresh)")
+print(f"   > Pas de comportement humain superflu (gain de temps)")
 if not MODE_VISIBLE:
-    print(f"\n💡 Conseil : Le script tourne en arrière-plan")
-    print(f"   → Vous pouvez minimiser cette fenêtre")
-    print(f"   → Consultez 'candidature_logs.log' pour le suivi détaillé")
-print(f"\n⏱️  Temps estimé :")
-print(f"   • Si vérification rapide (10-20s) : ~25s par candidature")
-print(f"   • Si vérification lente (1-2 min) : ~2-3 min par candidature")
-print(f"   • Total pour {len(URLS_ENTREPRISES)} : Variable (dépend du site)")
+    print(f"\n[CONSEIL] Le script tourne en arriere-plan")
+    print(f"   > Vous pouvez minimiser cette fenetre")
+    print(f"   > Consultez 'candidature_logs.log' pour le suivi detaille")
+print(f"\n[TEMPS] Temps estime :")
+print(f"   - Si verification rapide (10-20s) : ~25s par candidature")
+print(f"   - Si verification lente (1-2 min) : ~2-3 min par candidature")
+print(f"   - Total pour {len(URLS_ENTREPRISES)} : Variable (depend du site)")
 print(f"\n{'='*60}\n")
 
 # Compteurs de statistiques
@@ -475,11 +476,11 @@ try:
         
         if envoyer_candidature(url):
             succes += 1
-            print(f"✓ Candidature envoyée avec succès à {url}")
+            print(f"[OK] Candidature envoyee avec succes a {url}")
         else:
             echecs += 1
             echecs_liste.append(url)
-            print(f"✗ Erreur lors de l'envoi à {url}")
+            print(f"[ERREUR] Erreur lors de l'envoi a {url}")
         
         # Petite pause entre chaque envoi (juste pour ne pas surcharger)
         time.sleep(2)
@@ -487,17 +488,17 @@ try:
         
         # Afficher les statistiques tous les 10 envois
         if i % 10 == 0:
-            print(f"\n--- Statistiques intermédiaires ---")
-            print(f"Succès: {succes} | Échecs: {echecs} | Total traité: {i}/{len(URLS_ENTREPRISES)}")
+            print(f"\n--- Statistiques intermediaires ---")
+            print(f"Succes: {succes} | Echecs: {echecs} | Total traite: {i}/{len(URLS_ENTREPRISES)}")
             if i > 0:
-                print(f"Taux de réussite: {(succes/i)*100:.1f}%\n")
+                print(f"Taux de reussite: {(succes/i)*100:.1f}%\n")
 
 except KeyboardInterrupt:
-    print("\n\n⚠️  Interruption détectée par l'utilisateur")
+    print("\n\n[!] Interruption detectee par l'utilisateur")
     logging.warning("Arrêt demandé par l'utilisateur")
     
 except Exception as e:
-    print(f"\n\n✗ Erreur critique: {e}")
+    print(f"\n\n[ERREUR CRITIQUE] Erreur critique: {e}")
     logging.critical(f"Erreur critique dans la boucle principale: {e}")
 
 finally:
@@ -505,26 +506,26 @@ finally:
     print(f"\n{'='*50}")
     print(f"STATISTIQUES FINALES")
     print(f"{'='*50}")
-    print(f"Total traité: {succes + echecs}/{len(URLS_ENTREPRISES)}")
-    print(f"Succès: {succes}")
-    print(f"Échecs: {echecs}")
+    print(f"Total traite: {succes + echecs}/{len(URLS_ENTREPRISES)}")
+    print(f"Succes: {succes}")
+    print(f"Echecs: {echecs}")
     
     if succes + echecs > 0:
-        print(f"Taux de réussite: {(succes/(succes+echecs))*100:.1f}%")
+        print(f"Taux de reussite: {(succes/(succes+echecs))*100:.1f}%")
     
     if echecs > 0:
-        print(f"\n⚠️  {echecs} échecs détectés. URLs concernées:")
+        print(f"\n[!] {echecs} echecs detectes. URLs concernees:")
         for url_echec in echecs_liste[:10]:  # Afficher max 10
             print(f"  - {url_echec}")
         if len(echecs_liste) > 10:
             print(f"  ... et {len(echecs_liste) - 10} autres")
     
     if DRY_RUN:
-        print(f"\n✓ Test terminé ! {len(URLS_ENTREPRISES)} candidatures auraient été envoyées.")
-        print("\nPour envoyer réellement les candidatures, exécutez:")
+        print(f"\n[OK] Test termine ! {len(URLS_ENTREPRISES)} candidatures auraient ete envoyees.")
+        print("\nPour envoyer reellement les candidatures, executez:")
         print("  python sender.py")
     else:
-        print(f"\n✓ Envoi terminé !")
+        print(f"\n[OK] Envoi termine !")
     
     print(f"{'='*50}\n")
     
@@ -536,7 +537,7 @@ finally:
             f.write(f"# Total: {echecs} échecs\n\n")
             for url_echec in echecs_liste:
                 f.write(f"{url_echec}\n")
-        print(f"📝 Liste des échecs sauvegardée dans 'echecs_candidatures.txt'\n")
+        print(f"[FICHIER] Liste des echecs sauvegardee dans 'echecs_candidatures.txt'\n")
     
     # Fermer le navigateur
     if driver:
