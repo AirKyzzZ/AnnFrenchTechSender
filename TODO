@@ -1,5 +1,5 @@
 ✔ Après 100 secondes d'attente il fait une nouvelle ligne chaque secondes j'aimerais que meme apres 100 seondes cela reste sur la meme ligne @done(25-10-10 17:03)
-☐ Enlever les emojis dans le terminal laisser clean sans emojis juste du texte
+✔ Enlever les emojis dans le terminal laisser clean sans emojis juste du texte @done(25-10-10 17:08)
 ☐ J'aimerais que le programme prenne en compte l'avancée précédente et qu'il ne puisse pas refaire la même entreprise 2 fois quand on quitte puis relance le programme
 ☐ Polish en enlevent les comments sur la version finale
 ☐ Créer une interface graphique pour mettre le numéro de téléphone email 
