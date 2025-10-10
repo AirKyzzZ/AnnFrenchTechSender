@@ -12,10 +12,18 @@ import csv
 import logging
 import sys
 import random
+from datetime import datetime, timedelta
 
 # Mode test : mettez à True pour simuler sans envoyer réellement
 DRY_RUN = "--dry-run" in sys.argv or "--test" in sys.argv
 TEST_5 = "--test-5" in sys.argv  # Traiter seulement 5 entreprises
+MODE_VISIBLE = "--visible" in sys.argv  # Mode visible (avec fenêtre Chrome)
+
+# Paramètres de rotation du navigateur (anti-détection)
+# DÉSACTIVÉ : La rotation n'est pas nécessaire, le timing humain suffit
+ROTATION_ACTIVE = False  # Mettre à True pour réactiver la rotation automatique
+DUREE_SESSION_MINUTES = 15  # Durée d'une session avant de relancer Chrome
+PAUSE_ENTRE_SESSIONS_MINUTES = 4  # Pause de 4 minutes entre chaque session
 
 # Configurer les logs
 logging.basicConfig(
@@ -26,6 +34,14 @@ logging.basicConfig(
 
 if DRY_RUN:
     print("⚠️  MODE TEST ACTIVÉ - Aucune candidature ne sera réellement envoyée\n")
+
+if not MODE_VISIBLE:
+    print("🔇 MODE ARRIÈRE-PLAN - Chrome tourne en arrière-plan (headless)")
+    print("   → Vous pouvez éteindre votre écran ou faire autre chose")
+    print("   → Utilisez '--visible' pour voir Chrome en action")
+    print("\n💡 Important pour écran débranché :")
+    print("   → Vérifiez que Windows ne met pas l'ordinateur en veille")
+    print("   → Paramètres > Système > Alimentation > Mise en veille : Jamais\n")
 
 # Paramètres du candidat
 CANDIDATURE = {
@@ -81,28 +97,47 @@ if TEST_5:
 
 logging.info(f"{len(URLS_ENTREPRISES)} organisations à contacter (après filtrage de la liste noire).")
 
-# Variable globale pour le driver
+# Variables globales pour le driver et la session
 driver = None
+heure_debut_session = None
 
 def initialiser_driver():
     """
     Initialise ou réinitialise le driver Selenium.
     Retourne une instance du driver Chrome.
     """
-    global driver
+    global driver, heure_debut_session
     
     # Fermer le driver existant s'il y en a un
     if driver:
         try:
             driver.quit()
+            logging.info("Driver précédent fermé")
         except:
             pass
     
     options = webdriver.ChromeOptions()
-    # options.add_argument("--headless")  # MODE VISIBLE pour debug
+    
+    # Mode headless (arrière-plan) par défaut, sauf si --visible est spécifié
+    if not MODE_VISIBLE:
+        options.add_argument("--headless=new")  # Mode headless (pas de fenêtre)
+        options.add_argument("--window-size=1920,1080")  # Taille de fenêtre virtuelle
+        print("   🔇 Mode arrière-plan activé (headless)")
+        logging.info("Chrome lancé en mode headless (arrière-plan)")
+    else:
+        options.add_argument("--start-maximized")  # Fenêtre maximisée pour mieux voir
+        print("   👁️  Mode visible activé (avec fenêtre Chrome)")
+        logging.info("Chrome lancé en mode visible")
+    
+    # Options essentielles pour stabilité
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--start-maximized")  # Fenêtre maximisée pour mieux voir
+    
+    # Options critiques pour fonctionner quand l'écran est débranché
+    options.add_argument("--disable-gpu")  # Désactiver le GPU (utiliser le rendu logiciel)
+    options.add_argument("--disable-software-rasterizer")  # Éviter les problèmes de rendu
+    options.add_argument("--disable-extensions")  # Pas d'extensions
+    options.add_argument("--disable-setuid-sandbox")  # Stabilité supplémentaire
     
     # MASQUER que c'est Selenium (anti-détection bot)
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -124,7 +159,10 @@ def initialiser_driver():
     })
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     
-    logging.info("Driver Selenium initialisé avec succès (mode humain)")
+    # Initialiser l'heure de début de session
+    heure_debut_session = datetime.now()
+    
+    logging.info(f"Driver Selenium initialisé avec succès (mode humain) - Session démarrée à {heure_debut_session.strftime('%H:%M:%S')}")
     return driver
 
 # Fonctions pour mimer un comportement humain
@@ -133,17 +171,24 @@ def delai_humain(min_sec=0.5, max_sec=2.0):
     time.sleep(random.uniform(min_sec, max_sec))
 
 def taper_comme_humain(element, texte):
-    """Tape du texte lettre par lettre avec des délais aléatoires"""
+    """Tape du texte lettre par lettre avec des délais aléatoires - VERSION LENTE"""
     element.click()  # Cliquer d'abord sur le champ
-    time.sleep(random.uniform(0.1, 0.3))
+    time.sleep(random.uniform(0.3, 0.7))  # Réflexion avant de commencer à taper
     
-    for char in texte:
+    for i, char in enumerate(texte):
         element.send_keys(char)
-        # Délai variable : parfois rapide, parfois lent
-        if random.random() < 0.1:  # 10% du temps, pause plus longue
-            time.sleep(random.uniform(0.1, 0.3))
+        
+        # Délai variable : vraiment imiter un humain qui tape
+        if random.random() < 0.15:  # 15% du temps, pause plus longue (réflexion)
+            time.sleep(random.uniform(0.3, 0.6))
+        elif random.random() < 0.05:  # 5% du temps, très longue pause (chercher un mot)
+            time.sleep(random.uniform(0.8, 1.5))
         else:
-            time.sleep(random.uniform(0.02, 0.08))
+            time.sleep(random.uniform(0.05, 0.15))  # Frappe normale
+        
+        # Petite pause tous les 10-15 caractères (respiration)
+        if i > 0 and i % random.randint(10, 15) == 0:
+            time.sleep(random.uniform(0.2, 0.5))
 
 def bouger_souris_vers(driver, element):
     """Bouge la souris vers un élément de façon naturelle"""
@@ -156,11 +201,83 @@ def scroller_vers(driver, element):
     driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
     time.sleep(random.uniform(0.3, 0.7))
 
+def forcer_relance_session(raison=""):
+    """
+    Force une relance immédiate de la session Chrome (en cas de blocage détecté).
+    """
+    global driver, heure_debut_session
+    
+    print(f"\n{'='*60}")
+    print(f"🔄 RELANCE FORCÉE DE CHROME")
+    if raison:
+        print(f"Raison : {raison}")
+    print(f"{'='*60}\n")
+    logging.info(f"Relance forcée de Chrome - Raison: {raison}")
+    
+    # Fermer le navigateur actuel
+    if driver:
+        try:
+            driver.quit()
+            logging.info("Navigateur fermé (relance forcée)")
+        except:
+            pass
+    
+    # Pause courte mais suffisante pour contourner la détection
+    pause_secondes = random.randint(8, 15)
+    print(f"⏸️  Pause de {pause_secondes} secondes pour contourner la détection...")
+    time.sleep(pause_secondes)
+    
+    # Relancer un nouveau navigateur
+    print(f"🌐 Lancement d'une nouvelle instance de Chrome...")
+    initialiser_driver()
+    print(f"✓ Nouveau navigateur prêt !\n")
+
+def verifier_et_relancer_session():
+    """
+    Vérifie si la session actuelle dépasse la durée autorisée.
+    Si oui, ferme le navigateur, prend une pause, et relance une nouvelle session.
+    """
+    global driver, heure_debut_session
+    
+    if heure_debut_session is None:
+        return  # Pas encore de session
+    
+    temps_ecoule = datetime.now() - heure_debut_session
+    minutes_ecoulees = temps_ecoule.total_seconds() / 60
+    
+    if minutes_ecoulees >= DUREE_SESSION_MINUTES:
+        print(f"\n{'='*60}")
+        print(f"⏰ Session en cours depuis {minutes_ecoulees:.1f} minutes")
+        print(f"🔄 Relance d'une nouvelle instance de Chrome pour éviter la détection")
+        print(f"{'='*60}\n")
+        logging.info(f"Rotation du navigateur après {minutes_ecoulees:.1f} minutes d'utilisation")
+        
+        # Fermer le navigateur actuel
+        if driver:
+            try:
+                driver.quit()
+                logging.info("Navigateur fermé pour rotation")
+            except:
+                pass
+        
+        # Pause de 4 minutes pour simuler un comportement humain
+        print(f"⏸️  Pause de {PAUSE_ENTRE_SESSIONS_MINUTES} minutes pour éviter la détection...")
+        for i in range(PAUSE_ENTRE_SESSIONS_MINUTES, 0, -1):
+            print(f"   ⏱️  {i} minute{'s' if i > 1 else ''} restante{'s' if i > 1 else ''}...", end='\r')
+            time.sleep(60)  # Pause de 1 minute
+        print(f"\n   ✓ Pause terminée !\n")
+        logging.info(f"Pause de {PAUSE_ENTRE_SESSIONS_MINUTES} minutes terminée")
+        
+        # Relancer un nouveau navigateur
+        print(f"🌐 Lancement d'une nouvelle instance de Chrome...")
+        initialiser_driver()
+        print(f"✓ Nouveau navigateur prêt !\n")
+
 # Initialiser Selenium (sauf en mode test)
 if not DRY_RUN:
     driver = initialiser_driver()
 
-def envoyer_candidature(url, tentative=1, max_tentatives=3):
+def envoyer_candidature(url, tentative=1, max_tentatives=5):
     """
     Envoie une candidature à une organisation.
     En mode DRY_RUN, simule l'envoi sans réellement envoyer.
@@ -185,94 +302,79 @@ def envoyer_candidature(url, tentative=1, max_tentatives=3):
         # Charger la page
         print(f"   → Chargement de la page...")
         driver.get(url)
-        delai_humain(2, 4)  # Délai aléatoire comme un humain qui regarde la page
-        
-        # Scroller un peu pour mimer la lecture de la page
-        driver.execute_script("window.scrollTo(0, 300);")
-        delai_humain(0.5, 1.5)
-        
-        # Gérer la pop-up de cookies si elle apparaît
-        print(f"   → Vérification pop-up cookies...")
-        try:
-            cookie_button = driver.find_element(By.ID, "accepter-les-cookies")
-            if cookie_button.is_displayed():
-                bouger_souris_vers(driver, cookie_button)
-                cookie_button.click()
-                print(f"   ✓ Pop-up cookies acceptée")
-                logging.info(f"Pop-up cookies acceptée pour {url}")
-                delai_humain(0.5, 1)
-        except NoSuchElementException:
-            pass  # Pas de pop-up, c'est OK
-        except Exception:
-            pass  # Erreur ignorée
+        time.sleep(2)  # Attendre que la page charge
 
-        # Scroller jusqu'au formulaire
-        print(f"   → Recherche du formulaire...")
-        form = driver.find_element(By.TAG_NAME, "form")
-        scroller_vers(driver, form)
-        delai_humain(0.5, 1)
-
-        # Remplir les champs du formulaire COMME UN HUMAIN
-        print(f"   → Remplissage du formulaire (comme un humain)...")
+        # Remplir le formulaire RAPIDEMENT
+        print(f"   → Remplissage du formulaire...")
         
-        # Nom
-        nom_field = driver.find_element(By.NAME, "organization_contact[last_name]")
-        scroller_vers(driver, nom_field)
-        bouger_souris_vers(driver, nom_field)
-        taper_comme_humain(nom_field, CANDIDATURE["nom"])
-        delai_humain(0.3, 0.8)
-        
-        # Prénom
-        prenom_field = driver.find_element(By.NAME, "organization_contact[first_name]")
-        bouger_souris_vers(driver, prenom_field)
-        taper_comme_humain(prenom_field, CANDIDATURE["prenom"])
-        delai_humain(0.3, 0.8)
-        
-        # Email
-        email_field = driver.find_element(By.NAME, "organization_contact[email]")
-        bouger_souris_vers(driver, email_field)
-        taper_comme_humain(email_field, CANDIDATURE["email"])
-        delai_humain(0.3, 0.8)
-        
-        # Téléphone
-        tel_field = driver.find_element(By.NAME, "organization_contact[phone]")
-        bouger_souris_vers(driver, tel_field)
-        taper_comme_humain(tel_field, CANDIDATURE["telephone"])
-        delai_humain(0.3, 0.8)
-        
-        # Objet
-        objet_field = driver.find_element(By.NAME, "organization_contact[subject]")
-        bouger_souris_vers(driver, objet_field)
-        taper_comme_humain(objet_field, CANDIDATURE["objet"])
-        delai_humain(0.5, 1.2)
-        
-        # Message (plus long, donc on tape normalement mais avec des pauses)
-        message_field = driver.find_element(By.NAME, "organization_contact[message]")
-        scroller_vers(driver, message_field)
-        bouger_souris_vers(driver, message_field)
-        message_field.click()
-        delai_humain(0.2, 0.5)
-        # Pour le message, on tape par morceaux pour aller plus vite mais rester naturel
-        message_field.send_keys(CANDIDATURE["message"])
-        delai_humain(0.5, 1.5)
+        driver.find_element(By.NAME, "organization_contact[last_name]").send_keys(CANDIDATURE["nom"])
+        driver.find_element(By.NAME, "organization_contact[first_name]").send_keys(CANDIDATURE["prenom"])
+        driver.find_element(By.NAME, "organization_contact[email]").send_keys(CANDIDATURE["email"])
+        driver.find_element(By.NAME, "organization_contact[phone]").send_keys(CANDIDATURE["telephone"])
+        driver.find_element(By.NAME, "organization_contact[subject]").send_keys(CANDIDATURE["objet"])
+        driver.find_element(By.NAME, "organization_contact[message]").send_keys(CANDIDATURE["message"])
         
         print(f"   ✓ Formulaire rempli")
+        time.sleep(1)  # Petite pause après remplissage
         
-        # Chercher le bouton submit
-        print(f"   → Recherche du bouton d'envoi...")
+        # ÉTAPE CRITIQUE : Attendre que le bouton soit prêt ("Envoyer" et non disabled)
+        print(f"   → Attente de la vérification anti-bot...")
+        
+        max_attente = 240  # 4 minutes maximum
+        temps_debut_attente = time.time()
+        bouton_pret = False
+        
+        while time.time() - temps_debut_attente < max_attente:
+            try:
+                submit_button = driver.find_element(By.XPATH, "//input[@type='submit']")
+                
+                # Vérifier l'attribut value du bouton
+                bouton_value = submit_button.get_attribute("value")
+                est_disabled = submit_button.get_attribute("disabled")
+                
+                temps_ecoule = int(time.time() - temps_debut_attente)
+                print(f"   ⏱️  {temps_ecoule}s - Bouton: '{bouton_value}' | Disabled: {est_disabled is not None}", end='\r')
+                
+                # Le bouton est prêt si le texte est "Envoyer" OU si disabled=False
+                if est_disabled is None and ("envoyer" in bouton_value.lower() or "envoi" in bouton_value.lower()):
+                    print(f"\n   ✅ Bouton prêt : '{bouton_value}' (après {temps_ecoule}s)")
+                    bouton_pret = True
+                    break
+                
+                # Attendre 2 secondes avant de revérifier
+                time.sleep(2)
+                
+            except Exception as e:
+                print(f"\n   ⚠️  Erreur lors de la vérification du bouton : {e}")
+                time.sleep(2)
+        
+        if not bouton_pret:
+            # Le bouton n'est pas devenu prêt après 4 minutes
+            print(f"\n   ❌ Le bouton n'est pas devenu 'Envoyer' après {max_attente}s")
+            print(f"   🔄 Refresh de la page et nouvelle tentative...")
+            logging.warning(f"Timeout d'attente du bouton pour {url} - Refresh nécessaire")
+            
+            if tentative < max_tentatives:
+                # Refresh la page (pas besoin de relancer Chrome)
+                driver.refresh()
+                time.sleep(3)
+                print(f"   ♻️  Nouvelle tentative après refresh (tentative {tentative + 1}/{max_tentatives})...")
+                return envoyer_candidature(url, tentative + 1, max_tentatives)
+            else:
+                print(f"   ✗ Échec après {max_tentatives} tentatives")
+                logging.error(f"Échec après {max_tentatives} tentatives pour {url}")
+                return False
+        
+        # Le bouton est prêt, on peut cliquer
         try:
-            submit_button = driver.find_element(By.XPATH, "//button[@type='submit'] | //input[@type='submit']")
-            scroller_vers(driver, submit_button)
-            bouger_souris_vers(driver, submit_button)
-            delai_humain(0.5, 1.5)  # Hésitation avant de cliquer
             print(f"   → Clic sur le bouton d'envoi...")
             submit_button.click()
-        except NoSuchElementException:
-            print(f"   → Bouton non trouvé, utilisation de form.submit()...")
-            form.submit()
+        except Exception as e:
+            print(f"   ⚠️  Erreur lors du clic : {e}")
+            return False
         
         print(f"   → Attente de la réponse du serveur...")
-        delai_humain(3, 5)  # Attente avec délai aléatoire
+        time.sleep(3)  # Attente de la réponse
 
         # VÉRIFIER le résultat : chercher le message de confirmation OU l'erreur 422
         print(f"   → Vérification du résultat...")
@@ -337,9 +439,25 @@ def envoyer_candidature(url, tentative=1, max_tentatives=3):
         return False
 
 # Parcourir la liste des entreprises et envoyer les candidatures
-print(f"\nDébut de l'envoi des candidatures...")
-print(f"{len(URLS_ENTREPRISES)} organisations à contacter")
-print(f"{len(BLACKLIST)} organisations en liste noire (ignorées)\n")
+print(f"\n{'='*60}")
+print(f"Début de l'envoi des candidatures")
+print(f"{'='*60}")
+print(f"📊 Organisations : {len(URLS_ENTREPRISES)} à contacter")
+print(f"🚫 Liste noire : {len(BLACKLIST)} ignorées")
+print(f"\n⚡ Mode RAPIDE + ATTENTE INTELLIGENTE :")
+print(f"   → Remplissage ultra-rapide du formulaire (~3 secondes)")
+print(f"   → Attente automatique que le bouton devienne 'Envoyer'")
+print(f"   → Maximum 5 tentatives par entreprise (avec refresh)")
+print(f"   → Pas de comportement humain superflu (gain de temps)")
+if not MODE_VISIBLE:
+    print(f"\n💡 Conseil : Le script tourne en arrière-plan")
+    print(f"   → Vous pouvez minimiser cette fenêtre")
+    print(f"   → Consultez 'candidature_logs.log' pour le suivi détaillé")
+print(f"\n⏱️  Temps estimé :")
+print(f"   • Si vérification rapide (10-20s) : ~25s par candidature")
+print(f"   • Si vérification lente (1-2 min) : ~2-3 min par candidature")
+print(f"   • Total pour {len(URLS_ENTREPRISES)} : Variable (dépend du site)")
+print(f"\n{'='*60}\n")
 
 # Compteurs de statistiques
 succes = 0
@@ -348,6 +466,11 @@ echecs_liste = []
 
 try:
     for i, url in enumerate(URLS_ENTREPRISES, 1):
+        # Vérifier et relancer une nouvelle session si nécessaire (toutes les 15 minutes)
+        # DÉSACTIVÉ : Le timing humain suffit, pas besoin de rotation
+        if ROTATION_ACTIVE and not DRY_RUN:
+            verifier_et_relancer_session()
+        
         print(f"[{i}/{len(URLS_ENTREPRISES)}] Envoi en cours...")
         
         if envoyer_candidature(url):
@@ -358,8 +481,9 @@ try:
             echecs_liste.append(url)
             print(f"✗ Erreur lors de l'envoi à {url}")
         
-        # Pause entre chaque envoi
-        time.sleep(5)
+        # Petite pause entre chaque envoi (juste pour ne pas surcharger)
+        time.sleep(2)
+        print()
         
         # Afficher les statistiques tous les 10 envois
         if i % 10 == 0:

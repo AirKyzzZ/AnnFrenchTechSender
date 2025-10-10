@@ -28,7 +28,7 @@ options.add_argument("--disable-dev-shm-usage")
 service = Service(ChromeDriverManager().install())
 driver = webdriver.Chrome(service=service, options=options)
 
-def recuperer_urls_entreprises(max_pages=152):
+def recuperer_urls_entreprises(max_pages=163):
     """
     Récupère les URLs de toutes les organisations de l'annuaire French Tech Bordeaux.
     

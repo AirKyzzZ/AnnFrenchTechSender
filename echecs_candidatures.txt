@@ -1,5 +1,5 @@
-# URLs des candidatures ayant échoué
-# Date: 2025-10-08 16:50:24
-# Total: 1 échecs
+# URLs des candidatures ayant �chou�
+# Date: 2025-10-10 16:22:51
+# Total: 631 �checs
 
-https://annuaire.frenchtechbordeaux.com/organisations/a7
+
