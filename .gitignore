@@ -1,15 +1,13 @@
 # Fichiers de logs
 *.log
 
-# Fichiers CSV (peuvent contenir des données sensibles)
-
 # Environnements virtuels Python
 venv/
 env/
 ENV/
 .venv/
 
-# Fichiers Python compilés
+# Fichiers Python compiles
 __pycache__/
 *.py[cod]
 *$py.class
@@ -40,12 +38,19 @@ wheels/
 *.swo
 *~
 
-# Système d'exploitation
+# Systeme d'exploitation
 .DS_Store
 Thumbs.db
 
-# Données personnelles
-# Note: blacklist.txt n'est PAS ignoré car c'est une configuration importante
-# Si vous souhaitez l'ignorer, décommentez la ligne suivante :
-# blacklist.txt
+# Donnees utilisateur (profils, config)
+data/profiles/
+data/config.json
 
+# Fichiers generes
+echecs_candidatures.txt
+debug_screenshot.png
+candidature_debug.log
+progress.json
+
+# Screenshots
+*.png

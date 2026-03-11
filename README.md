@@ -1,162 +1,143 @@
-# French Tech Bordeaux - Envoi Automatisé de Candidatures
+# FT Sender - French Tech Bordeaux
 
-Script Python pour automatiser l'envoi de candidatures de stage aux entreprises de l'annuaire French Tech Bordeaux.
+Application desktop pour automatiser l'envoi de candidatures de stage via les formulaires de contact de l'annuaire French Tech Bordeaux.
 
-## 📋 Prérequis
+## Fonctionnalites
 
-- Python 3.7+
-- Google Chrome installé sur votre système
-- Connexion internet
+- **Profil candidat** : Sauvegarde et modification des informations personnelles (nom, email, telephone, message de candidature)
+- **Envoi automatise** : Envoi en masse avec barre de progression, statistiques temps reel et logs detailles
+- **Liste noire** : Gestion des organisations a ignorer (deja contactees ou ayant repondu)
+- **Journaux** : Visualisation des logs en temps reel avec filtres par niveau
+- **Parametres** : Configuration des delais, timeouts, mode headless et chemins de fichiers
+- **Anti-detection** : Masquage de Selenium, user-agent reel, timing humain
+- **Controle** : Demarrer, mettre en pause et arreter l'envoi a tout moment
 
-## 🚀 Installation
+## Prerequis
 
-1. Cloner ou télécharger ce répertoire
+- Python 3.10 ou superieur
+- Google Chrome installe sur le systeme
+- Fichier `urls_entreprises.csv` avec les URLs des organisations (genere par le scraper)
 
-2. Installer les dépendances Python :
+## Installation
+
 ```bash
+# Cloner le depot
+git clone <url-du-depot>
+cd AnnFrenchTechSender
+
+# Creer un environnement virtuel
+python -m venv venv
+source venv/bin/activate  # macOS/Linux
+# ou: venv\Scripts\activate  # Windows
+
+# Installer les dependances
 pip install -r requirements.txt
 ```
 
-## 📝 Configuration
+## Utilisation
 
-### 1. Personnaliser votre candidature
-
-Éditez le fichier `sender.py` et modifiez le dictionnaire `CANDIDATURE` avec vos informations :
-
-```python
-CANDIDATURE = {
-    "nom": "Votre Nom",
-    "prenom": "Votre Prénom",
-    "email": "votre.email@example.com",
-    "telephone": "06 XX XX XX XX",
-    "objet": "Candidature pour un stage",
-    "message": """Votre message personnalisé..."""
-}
-```
-
-### 2. Liste noire des organisations
-
-Le fichier `blacklist.txt` contient les URLs des organisations à ignorer (déjà contactées ou ayant répondu).
-
-Format : une URL par ligne
-```
-https://annuaire.frenchtechbordeaux.com/organisations/nom-organisation
-```
-
-Ajoutez simplement les URLs des organisations que vous souhaitez exclure.
-
-#### Gestionnaire de liste noire
-
-Un script utilitaire est fourni pour gérer facilement la liste noire :
+### Lancer l'application desktop
 
 ```bash
-# Afficher la liste noire
-python blacklist_manager.py list
-
-# Ajouter une organisation
-python blacklist_manager.py add https://annuaire.frenchtechbordeaux.com/organisations/nom-entreprise
-
-# Retirer une organisation
-python blacklist_manager.py remove https://annuaire.frenchtechbordeaux.com/organisations/nom-entreprise
-
-# Afficher l'aide
-python blacklist_manager.py help
+python app/main.py
 ```
 
-## 🔧 Utilisation
+### Premiere utilisation
 
-### Étape 1 : Récupérer les URLs des entreprises
+1. **Onglet Profil** : Remplissez vos informations personnelles et votre message de candidature, puis cliquez sur "Enregistrer"
+2. **Onglet Parametres** : Ajustez les delais et options si necessaire
+3. **Onglet Envoi** : Cliquez sur "Demarrer l'envoi" (cochez "Mode test" pour un essai sans envoi reel)
+4. **Suivi** : Observez la progression, les statistiques et les logs en temps reel
 
-Exécutez le script de scraping pour récupérer toutes les URLs de l'annuaire :
+### Scraper les URLs (si necessaire)
+
+Si vous n'avez pas encore le fichier `urls_entreprises.csv` :
 
 ```bash
-python scrapper.py
+python scripts/scrapper.py
 ```
 
-Ce script va :
-- Parcourir toutes les pages de l'annuaire French Tech Bordeaux
-- Extraire les URLs de toutes les organisations
-- Générer le fichier `urls_entreprises.csv`
-- Créer un fichier de logs `scrapper_logs.log`
+### Scripts CLI (legacy)
 
-**Durée estimée** : ~10-15 minutes pour 151 pages
-
-### Étape 2 : Tester l'envoi (mode test)
-
-**RECOMMANDÉ** : Avant d'envoyer réellement, testez d'abord en mode simulation :
+Les scripts en ligne de commande originaux sont conserves dans le dossier `scripts/` :
 
 ```bash
-python sender.py --dry-run
-# ou
-python sender.py --test
+# Envoi en mode terminal
+python scripts/sender.py
+
+# Mode test (sans envoi reel)
+python scripts/sender.py --dry-run
+
+# Mode visible (avec fenetre Chrome)
+python scripts/sender.py --visible
+
+# Gestion de la liste noire
+python scripts/blacklist_manager.py list
+python scripts/blacklist_manager.py add <url>
+python scripts/blacklist_manager.py remove <url>
 ```
 
-Ce mode va :
-- Charger la liste noire et filtrer les organisations
-- Simuler l'envoi sans réellement envoyer les candidatures
-- Vous montrer combien de candidatures seraient envoyées
-- Créer des logs de test
+## Structure du projet
 
-### Étape 3 : Envoyer les candidatures
+```
+AnnFrenchTechSender/
+├── app/                        # Application desktop
+│   ├── main.py                 # Point d'entree
+│   ├── core/                   # Logique metier
+│   │   ├── sender_engine.py    # Moteur d'envoi (thread worker)
+│   │   ├── scraper_engine.py   # Scraping des URLs
+│   │   └── selenium_manager.py # Gestion de Chrome/Selenium
+│   ├── data/                   # Couche donnees
+│   │   ├── models.py           # Modeles (UserProfile, Settings, Stats)
+│   │   ├── profile_manager.py  # Gestion des profils JSON
+│   │   ├── blacklist_manager.py# Gestion de la liste noire
+│   │   └── config_manager.py   # Parametres de l'application
+│   └── ui/                     # Interface utilisateur
+│       ├── main_window.py      # Fenetre principale
+│       ├── theme.py            # Theme et constantes UI
+│       ├── components/         # Composants reutilisables
+│       └── frames/             # Ecrans de l'application
+├── scripts/                    # Scripts CLI legacy
+├── data/                       # Donnees utilisateur
+│   └── profiles/               # Profils candidat (JSON)
+├── requirements.txt            # Dependances
+├── requirements-dev.txt        # Dependances de developpement
+└── build.spec                  # Configuration PyInstaller
+```
 
-Une fois satisfait du test, lancez l'envoi réel :
+## Build (executable standalone)
 
 ```bash
-python sender.py
+# Installer les dependances de developpement
+pip install -r requirements-dev.txt
+
+# Construire l'executable
+pyinstaller build.spec
 ```
 
-Ce script va :
-- Charger la liste noire depuis `blacklist.txt`
-- Filtrer les organisations à contacter
-- Envoyer automatiquement les candidatures
-- Créer un fichier de logs `candidature_logs.log`
+L'executable sera genere dans le dossier `dist/`.
 
-**⚠️ ATTENTION** : Le script envoie réellement les emails ! Vérifiez bien votre configuration avant de lancer.
+## Technologies
 
-## 📊 Fichiers du projet
+- **Python 3.11** - Langage principal
+- **CustomTkinter** - Interface graphique moderne
+- **Selenium** - Automatisation du navigateur
+- **WebDriver Manager** - Gestion automatique du driver Chrome
+- **PyInstaller** - Packaging en executable
 
-### Fichiers de configuration
-- `blacklist.txt` : Liste noire des organisations à ignorer (éditable manuellement)
-- `requirements.txt` : Dépendances Python du projet
+## Historique des versions
 
-### Fichiers générés
-- `urls_entreprises.csv` : Liste des URLs des organisations scrapées
-- `candidature_logs.log` : Logs détaillés des candidatures envoyées
-- `scrapper_logs.log` : Logs du processus de scraping
+- **Fevrier 2026** : Application desktop avec interface graphique (CustomTkinter)
+- **Octobre 2025** : Ajout de la liste noire, amelioration des logs
+- **Fevrier 2025** : Version initiale (CLI)
 
-### Scripts
-- `scrapper.py` : Script de récupération des URLs
-- `sender.py` : Script d'envoi des candidatures
-- `blacklist_manager.py` : Utilitaire de gestion de la liste noire
+## Licence et responsabilite
 
-## 🛡️ Sécurité et bonnes pratiques
+Ce projet est fourni a des fins educatives dans le cadre d'un projet de classe (BTS SIO, EPSI Bordeaux). L'utilisateur est seul responsable de son utilisation. Assurez-vous de respecter les conditions d'utilisation du site French Tech Bordeaux.
 
-1. **Ne commitez jamais vos informations personnelles** dans un dépôt public
-2. Respectez un délai de 5 secondes entre chaque envoi (déjà configuré)
-3. Vérifiez régulièrement les logs pour détecter d'éventuelles erreurs
-4. Mettez à jour la liste noire après chaque campagne
+## Auteur
 
-## 🔍 Dépannage
-
-### Problème : ChromeDriver ne fonctionne pas
-**Solution** : Le script utilise `webdriver-manager` qui télécharge automatiquement la bonne version de ChromeDriver. Assurez-vous que Chrome est installé.
-
-### Problème : Trop d'erreurs lors du scraping
-**Solution** : Vérifiez votre connexion internet. Le script s'arrête automatiquement après 10 erreurs consécutives.
-
-### Problème : Les formulaires ne se remplissent pas
-**Solution** : Le site web a peut-être changé sa structure HTML. Vous devrez peut-être mettre à jour les sélecteurs CSS dans `sender.py`.
-
-## 📅 Historique des versions
-
-- **Octobre 2025** : Ajout de la liste noire, amélioration des logs, mise à jour pour 2026
-- **Février 2025** : Version initiale
-
-## ⚖️ Licence et responsabilité
-
-Ce script est fourni à des fins éducatives. L'utilisateur est seul responsable de son utilisation. Assurez-vous de respecter les conditions d'utilisation du site French Tech Bordeaux.
-
-## 📧 Contact
-
-Maxime Mansiet - maxime.mansiet@gmail.com
-
+**Maxime Mansiet** - Etudiant BTS SIO a l'EPSI Bordeaux
+- Portfolio : [maximemansiet.fr](https://maximemansiet.fr)
+- GitHub : [airkyzzz](https://github.com/airkyzzz)
+- LinkedIn : [maxime-mansiet](https://linkedin.com/in/maxime-mansiet)
