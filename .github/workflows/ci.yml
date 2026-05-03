@@ -1,0 +1,37 @@
+# Pipeline CI, FT Sender (AnnFrenchTechSender)
+#
+# Declenche sur chaque push ou pull request vers main.
+# Etapes:
+# 1. Installation de Python 3.11 et des dependances
+# 2. Tests pytest (unitaires, integration, end-to-end avec mocks Selenium)
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    name: Tests pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du depot
+        uses: actions/checkout@v4
+
+      - name: Configuration de Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Installation des dependances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Execution de la suite de tests
+        run: python -m pytest tests/ -v --tb=short
