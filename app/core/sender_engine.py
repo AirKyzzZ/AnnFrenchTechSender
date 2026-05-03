@@ -19,6 +19,7 @@ Communication UI <-> Worker :
 
 import csv
 import logging
+import random
 import threading
 import time
 import queue
@@ -253,8 +254,11 @@ class SenderEngine:
                 self._update_stats()
 
                 # Pause entre envois (delai aleatoire pour paraitre humain)
+                # On tire une valeur uniforme dans [delay_min, delay_max] a chaque
+                # iteration : un comportement deterministe (moyenne fixe) serait
+                # facilement detecte comme automatise par le site cible.
                 if not dry_run and i < len(urls) - 1:
-                    pause = settings.delay_min + (settings.delay_max - settings.delay_min) * 0.5
+                    pause = random.uniform(settings.delay_min, settings.delay_max)
                     time.sleep(pause)
 
         except Exception as e:
