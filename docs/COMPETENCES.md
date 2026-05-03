@@ -1,9 +1,9 @@
-# Compétences SLAM — FT Sender
+# Compétences SLAM, FT Sender
 
 > Mapping détaillé des trois compétences du bloc 2 SLAM (BTS SIO 2026) avec
 > liens directs vers le code source.
 
-## Compétence 1 — Concevoir et développer une solution applicative
+## Compétence 1, Concevoir et développer une solution applicative
 
 ### Sous-compétence : Analyser un besoin exprimé et son contexte juridique
 
@@ -16,7 +16,7 @@
 
 ### Sous-compétence : Participer à la conception de l'architecture
 
-- Architecture en **trois couches** : `data/`, `core/`, `ui/` — voir
+- Architecture en **trois couches** : `data/`, `core/`, `ui/`, voir
   [`ARCHITECTURE.md`](ARCHITECTURE.md#3-architecture-en-trois-couches).
 - Diagramme de composants Mermaid : [`uml/classes.md`](uml/classes.md).
 
@@ -26,8 +26,8 @@
   `User`, `UserProfile`, `Settings`, `SendingStats`.
 - **Modèle de données** relationnel : voir [`uml/mcd.md`](uml/mcd.md).
 - **Diagrammes de séquence** :
-  - [`uml/sequence-auth.md`](uml/sequence-auth.md) — login bcrypt
-  - [`uml/sequence-envoi.md`](uml/sequence-envoi.md) — envoi automatisé
+  - [`uml/sequence-auth.md`](uml/sequence-auth.md), login bcrypt
+  - [`uml/sequence-envoi.md`](uml/sequence-envoi.md), envoi automatisé
 
 ### Sous-compétence : Exploiter les ressources du cadre applicatif (framework)
 
@@ -39,9 +39,9 @@
 ### Sous-compétence : Identifier, développer, utiliser ou adapter des composants logiciels
 
 - Composants UI réutilisables dans `app/ui/components/` :
-  - [`navigation.py`](../app/ui/components/navigation.py) — barre latérale
-  - [`stats_widget.py`](../app/ui/components/stats_widget.py) — grille de stats
-  - [`log_viewer.py`](../app/ui/components/log_viewer.py) — visionneuse filtrée
+  - [`navigation.py`](../app/ui/components/navigation.py), barre latérale
+  - [`stats_widget.py`](../app/ui/components/stats_widget.py), grille de stats
+  - [`log_viewer.py`](../app/ui/components/log_viewer.py), visionneuse filtrée
 - **Adaptation** : `WebDriver Manager` pour gérer automatiquement la version du driver Chrome.
 
 ### Sous-compétence : Utiliser des composants d'accès aux données
@@ -75,7 +75,7 @@
 
 ---
 
-## Compétence 2 — Assurer la maintenance corrective ou évolutive
+## Compétence 2, Assurer la maintenance corrective ou évolutive
 
 ### Sous-compétence : Recueillir, analyser et mettre à jour les informations sur une version
 
@@ -118,7 +118,7 @@ Exemples concrets dans l'historique :
 
 ---
 
-## Compétence 3 — Gérer les données
+## Compétence 3, Gérer les données
 
 ### Sous-compétence : Exploiter des données à l'aide d'un langage de requêtes
 
@@ -142,12 +142,12 @@ WHERE user_id = ?
 ```
 
 Toutes les requêtes utilisent des **paramètres préparés** (`?`), jamais de concaténation
-de chaînes — voir [`SECURITE.md`](SECURITE.md#1-injection-sql).
+de chaînes, voir [`SECURITE.md`](SECURITE.md#1-injection-sql).
 
 ### Sous-compétence : Développer des fonctionnalités applicatives au sein d'un SGBD
 
 - Création des tables avec contraintes (`PRIMARY KEY`, `FOREIGN KEY`, `UNIQUE`, `NOT NULL`,
-  `DEFAULT`) — voir [`database.py`](../app/data/database.py).
+  `DEFAULT`), voir [`database.py`](../app/data/database.py).
 - Activation des clés étrangères : `PRAGMA foreign_keys = ON`.
 
 ### Sous-compétence : Concevoir ou adapter une base de données

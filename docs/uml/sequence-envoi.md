@@ -1,4 +1,4 @@
-# Diagramme de séquence — Envoi automatisé d'une candidature
+# Diagramme de séquence, Envoi automatisé d'une candidature
 
 ```mermaid
 sequenceDiagram
@@ -59,7 +59,7 @@ sequenceDiagram
 
 ## Notes
 
-- **Étape 9** : les URLs déjà envoyées avec succès sont **filtrées en amont** — preuve de la
+- **Étape 9** : les URLs déjà envoyées avec succès sont **filtrées en amont**, preuve de la
   déduplication (compétence « Gérer les données »).
 - **Étapes 11-12** : la configuration anti-détection est appliquée à chaque ouverture de
   driver.

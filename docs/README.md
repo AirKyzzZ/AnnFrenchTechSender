@@ -1,4 +1,4 @@
-# Documentation FT Sender — dossier BTS SIO E6
+# Documentation FT Sender, dossier BTS SIO E6
 
 > Documentation technique du projet **AnnFrenchTechSender** (FT Sender), réalisation
 > professionnelle n° 2 du dossier de l'épreuve E6 du BTS SIO option SLAM, session 2026.
@@ -26,4 +26,4 @@
 - **Code source** : <https://github.com/AirKyzzZ/AnnFrenchTechSender>
 - **Suivi des problèmes** : <https://github.com/AirKyzzZ/AnnFrenchTechSender/issues>
 - **CI** : <https://github.com/AirKyzzZ/AnnFrenchTechSender/actions>
-- **Auteur** : Maxime Mansiet — <https://maximemansiet.fr>
+- **Auteur** : Maxime Mansiet, <https://maximemansiet.fr>

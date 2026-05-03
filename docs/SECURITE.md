@@ -1,4 +1,4 @@
-# Sécurité — FT Sender
+# Sécurité, FT Sender
 
 > Synthèse des mesures de sécurité du projet, pour l'épreuve E6 BTS SIO SLAM.
 
@@ -85,7 +85,7 @@ d'utilisation du site cible.
 
 | Donnée | Localisation | Sensibilité |
 |---|---|---|
-| Mots de passe utilisateurs | `data/ftsender.db` (table `users`) | **Hachés** bcrypt — jamais en clair |
+| Mots de passe utilisateurs | `data/ftsender.db` (table `users`) | **Hachés** bcrypt, jamais en clair |
 | Profils (nom, email, téléphone) | `data/ftsender.db` (table `profiles`) | Données personnelles **locales** |
 | Historique des envois | `data/ftsender.db` (table `historique`) | Métadonnées (URL, date, statut) |
 | Configuration | `data/config.json` | Pas de secret |

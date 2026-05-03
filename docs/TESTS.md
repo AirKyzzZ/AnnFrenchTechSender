@@ -1,4 +1,4 @@
-# Tests — FT Sender
+# Tests, FT Sender
 
 > Stratégie de tests automatisés, pour l'épreuve E6 BTS SIO SLAM.
 
@@ -6,9 +6,9 @@
 
 ```
                 ╱─────────────╲
-               ╱  E2E (1 fich.)╲      ← test_e2e.py — envoi simulé avec mocks Selenium
+               ╱  E2E (1 fich.)╲      ← test_e2e.py, envoi simulé avec mocks Selenium
               ╱─────────────────╲
-             ╱  Intégration (1)  ╲    ← test_integration.py — parcours auth → profil → historique
+             ╱  Intégration (1)  ╲    ← test_integration.py, parcours auth → profil → historique
             ╱─────────────────────╲
            ╱   Unitaires (6 fich.) ╲  ← models, database, auth, blacklist, config, history
           ╱─────────────────────────╲

@@ -1,4 +1,4 @@
-# Diagramme de classes — FT Sender
+# Diagramme de classes, FT Sender
 
 ```mermaid
 classDiagram

@@ -1,4 +1,4 @@
-# Diagramme de déploiement — FT Sender
+# Diagramme de déploiement, FT Sender
 
 ```mermaid
 flowchart TB
@@ -47,7 +47,7 @@ flowchart TB
 1. **Google Chrome** installé localement (la version exacte importe peu : WebDriver Manager
    télécharge automatiquement le driver compatible).
 2. **Connexion internet** (pour Selenium et le scraping initial).
-3. **Aucun compte cloud** — tout reste local.
+3. **Aucun compte cloud**, tout reste local.
 
 ## Bundle PyInstaller
 

@@ -1,4 +1,4 @@
-# Diagramme de cas d'utilisation — FT Sender
+# Diagramme de cas d'utilisation, FT Sender
 
 ```mermaid
 flowchart TB
@@ -49,8 +49,8 @@ flowchart TB
 
 ## Cas d'utilisation prioritaires
 
-1. **UC5 — Démarrer un envoi** : cas central. Démarre le worker, charge les URLs, filtre par
+1. **UC5, Démarrer un envoi** : cas central. Démarre le worker, charge les URLs, filtre par
    blacklist + historique, lance la boucle Selenium, met à jour les stats en temps réel.
-2. **UC10 — Consulter l'historique** : montre la valeur du choix de stockage relationnel
+2. **UC10, Consulter l'historique** : montre la valeur du choix de stockage relationnel
    (agrégations SQL).
-3. **UC11 — Scraper l'annuaire** : génère le fichier CSV des organisations à contacter.
+3. **UC11, Scraper l'annuaire** : génère le fichier CSV des organisations à contacter.

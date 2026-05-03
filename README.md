@@ -1,4 +1,4 @@
-# FT Sender — French Tech Bordeaux
+# FT Sender, French Tech Bordeaux
 
 > Client lourd Python d'envoi automatisé de candidatures aux organisations
 > de l'annuaire French Tech Bordeaux.
@@ -47,9 +47,9 @@ Tout est versionné dans le dossier [`docs/`](docs/).
 
 **Compétences SLAM couvertes (bloc 2 du référentiel BTS SIO 2026) :**
 
-- ✓ **Concevoir et développer une solution applicative** — POO, threading thread-safe (queues + events), CustomTkinter, Selenium, packaging PyInstaller, tests pytest
-- ✓ **Assurer la maintenance corrective ou évolutive** — Évolution CLI legacy → desktop UI, ajout authentification + SQLite + tests, anti-détection, rotation de session
-- ✓ **Gérer les données** — Hybride SQL + NoSQL : SQLite (relations + agrégations), JSON (config), TXT (blacklist) — choix justifié dans la documentation
+- ✓ **Concevoir et développer une solution applicative**, POO, threading thread-safe (queues + events), CustomTkinter, Selenium, packaging PyInstaller, tests pytest
+- ✓ **Assurer la maintenance corrective ou évolutive**, Évolution CLI legacy → desktop UI, ajout authentification + SQLite + tests, anti-détection, rotation de session
+- ✓ **Gérer les données**, Hybride SQL + NoSQL : SQLite (relations + agrégations), JSON (config), TXT (blacklist), choix justifié dans la documentation
 
 ## Aperçu du projet
 
@@ -182,7 +182,7 @@ AnnFrenchTechSender/
 
 ## Choix techniques
 
-### SQL vs NoSQL — hybridation justifiée
+### SQL vs NoSQL, hybridation justifiée
 
 Le projet utilise **trois types de stockage** complémentaires, chacun adapté à
 la nature de la donnée :
@@ -235,14 +235,14 @@ L'exécutable est généré dans le dossier `dist/`.
 
 ## Technologies
 
-- **Python 3.11** — langage principal
-- **CustomTkinter** — interface graphique moderne
-- **Selenium** + **WebDriver Manager** — automatisation du navigateur
-- **SQLite** — base de données relationnelle (stdlib Python)
-- **bcrypt** — hachage sécurisé des mots de passe
-- **pytest** — framework de tests
-- **PyInstaller** — packaging en exécutable autonome
-- **Git / GitHub** — versionnage et suivi des problèmes
+- **Python 3.11**, langage principal
+- **CustomTkinter**, interface graphique moderne
+- **Selenium** + **WebDriver Manager**, automatisation du navigateur
+- **SQLite**, base de données relationnelle (stdlib Python)
+- **bcrypt**, hachage sécurisé des mots de passe
+- **pytest**, framework de tests
+- **PyInstaller**, packaging en exécutable autonome
+- **Git / GitHub**, versionnage et suivi des problèmes
 
 ## Historique des versions
 
@@ -261,7 +261,7 @@ Assurez-vous de respecter les conditions d'utilisation du site French Tech Borde
 
 ## Auteur
 
-**Maxime Louis François Mansiet** — étudiant BTS SIO à l'EPSI Bordeaux
+**Maxime Louis François Mansiet**, étudiant BTS SIO à l'EPSI Bordeaux
 
 - Portfolio : [maximemansiet.fr](https://maximemansiet.fr)
 - GitHub : [@AirKyzzZ](https://github.com/AirKyzzZ)

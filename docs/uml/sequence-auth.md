@@ -1,4 +1,4 @@
-# Diagramme de séquence — Authentification (login)
+# Diagramme de séquence, Authentification (login)
 
 ```mermaid
 sequenceDiagram

@@ -1,6 +1,6 @@
-# Architecture technique — FT Sender
+# Architecture technique, FT Sender
 
-> Documentation orientée jury — épreuve E6 BTS SIO SLAM, session 2026.
+> Documentation orientée jury, épreuve E6 BTS SIO SLAM, session 2026.
 
 ## 1. Vue d'ensemble
 
@@ -125,7 +125,7 @@ séparé pour ne pas geler l'interface.
 L'UI lit les queues via un `after(100, ...)` Tkinter (polling), ce qui garantit que toutes les
 modifications de widgets se font sur le main thread.
 
-## 5. Choix de stockage — hybride SQL + NoSQL
+## 5. Choix de stockage, hybride SQL + NoSQL
 
 Le projet illustre deux familles de stockage en choisissant la plus adaptée à chaque besoin.
 

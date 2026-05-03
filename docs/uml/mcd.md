@@ -1,4 +1,4 @@
-# Modèle conceptuel de données — FT Sender
+# Modèle conceptuel de données, FT Sender
 
 ## Schéma relationnel SQLite
 
@@ -38,8 +38,8 @@ erDiagram
 
 | Relation | Cardinalité | Justification |
 |---|---|---|
-| `users` → `profiles` | 1 — 0..1 | Un utilisateur peut avoir au plus un profil (`UNIQUE(user_id)`). Évolutif vers 1 — N si on ajoute des profils multiples plus tard. |
-| `users` → `historique` | 1 — N | Un utilisateur peut envoyer N candidatures. |
+| `users` → `profiles` | 1, 0..1 | Un utilisateur peut avoir au plus un profil (`UNIQUE(user_id)`). Évolutif vers 1, N si on ajoute des profils multiples plus tard. |
+| `users` → `historique` | 1, N | Un utilisateur peut envoyer N candidatures. |
 
 ## Contraintes d'intégrité
 
@@ -62,9 +62,9 @@ blacklist.txt        → Liste plate d'URLs (NoSQL clé-valeur de fait)
 
 | Données | Pourquoi SQL | Pourquoi NoSQL |
 |---|---|---|
-| Utilisateurs, profils, historique | Relations + agrégations + transactions | — |
-| Configuration | — | Pas de relations, lisible humainement, pas besoin de SQL |
-| Liste noire | — | Liste plate, simple à versionner / partager / éditer manuellement |
+| Utilisateurs, profils, historique | Relations + agrégations + transactions |, |
+| Configuration |, | Pas de relations, lisible humainement, pas besoin de SQL |
+| Liste noire |, | Liste plate, simple à versionner / partager / éditer manuellement |
 
 Cette **hybridation justifiée** illustre directement l'indicateur Annexe VII-5-B :
 *« Le choix du type de base de données est pertinent. »*
