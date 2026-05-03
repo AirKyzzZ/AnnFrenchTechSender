@@ -42,9 +42,10 @@ wheels/
 .DS_Store
 Thumbs.db
 
-# Donnees utilisateur (profils, config)
+# Donnees utilisateur (profils, config, base de donnees)
 data/profiles/
 data/config.json
+data/ftsender.db
 
 # Fichiers generes
 echecs_candidatures.txt

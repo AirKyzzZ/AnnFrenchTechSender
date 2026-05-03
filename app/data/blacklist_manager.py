@@ -1,7 +1,27 @@
+"""
+blacklist_manager.py - Gestionnaire de la liste noire
+
+La liste noire est stockee dans un fichier texte (1 URL par ligne).
+C'est l'approche "NoSQL" du projet : un fichier plat sans structure
+relationnelle, adapte pour une simple liste sans relations.
+
+Pourquoi un fichier texte et pas SQLite ?
+  → C'est une liste simple sans relations (pas de user_id, pas de jointures)
+  → Facile a editer manuellement si necessaire
+  → Permet de montrer au jury la difference SQL vs NoSQL dans le projet
+"""
+
 import os
 
 
 class BlacklistManager:
+    """
+    Gere la liste noire des organisations a ignorer lors de l'envoi.
+
+    Les URLs blacklistees sont exclues du processus d'envoi.
+    Utile pour les entreprises qui ont deja repondu ou qu'on ne veut pas contacter.
+    """
+
     def __init__(self, filepath: str = "blacklist.txt"):
         self.filepath = filepath
 

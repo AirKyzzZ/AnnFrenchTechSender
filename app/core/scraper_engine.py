@@ -1,3 +1,17 @@
+"""
+scraper_engine.py - Moteur de scraping des URLs d'organisations
+
+Ce module parcourt toutes les pages de l'annuaire French Tech Bordeaux
+et collecte les URLs des organisations. Ces URLs sont ensuite utilisees
+par le sender_engine pour envoyer les candidatures.
+
+Le scraping se fait via Selenium : on charge chaque page de l'annuaire,
+on recupere tous les liens vers les organisations, et on les sauvegarde
+dans un fichier CSV.
+
+Note : le scraping fonctionne dans un thread separe pour ne pas bloquer l'UI.
+"""
+
 import csv
 import logging
 import threading
@@ -12,6 +26,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 logger = logging.getLogger(__name__)
 
+# URL de base de l'annuaire avec pagination (?page=1, ?page=2, etc.)
 BASE_URL = "https://annuaire.frenchtechbordeaux.com/organisations?page="
 
 

@@ -1,6 +1,31 @@
+"""
+models.py - Modeles de donnees de l'application
+
+Ce module definit les structures de donnees utilisees dans toute l'application.
+On utilise des dataclasses Python : c'est une facon declarative de creer des
+classes qui stockent des donnees, sans ecrire manuellement __init__, __repr__, etc.
+
+Pourquoi des dataclasses ?
+  → Moins de code repetitif (boilerplate) qu'une classe normale
+  → Typage explicite de chaque champ (lisible, IDE-friendly)
+  → Methodes utilitaires generees automatiquement (__init__, __eq__, __repr__)
+"""
+
 from dataclasses import dataclass, field, asdict
 from typing import Optional
 from datetime import datetime
+
+
+@dataclass
+class User:
+    """
+    Represente un utilisateur de l'application.
+
+    Ce modele est utilise pour transporter les donnees utilisateur dans l'app.
+    Le mot de passe n'est PAS stocke ici (il reste dans la base en tant que hash).
+    """
+    id: int = 0
+    username: str = ""
 
 
 @dataclass

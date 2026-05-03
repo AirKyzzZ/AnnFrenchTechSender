@@ -1,3 +1,21 @@
+"""
+selenium_manager.py - Gestionnaire du navigateur Chrome (Selenium)
+
+Ce module configure et gere le navigateur Chrome utilise pour remplir
+automatiquement les formulaires de contact sur le site French Tech Bordeaux.
+
+Selenium est une bibliotheque qui permet de controler un navigateur
+par code Python. On utilise ChromeDriver (fourni automatiquement par
+webdriver_manager) pour piloter Google Chrome.
+
+Techniques anti-detection :
+  Le site peut detecter qu'un navigateur est controle par un script.
+  On applique plusieurs techniques pour paraitre "humain" :
+  → Masquer la propriete navigator.webdriver
+  → Utiliser un user-agent realiste (pas celui par defaut de Selenium)
+  → Desactiver les flags d'automation de Chrome
+"""
+
 import logging
 import time
 import random

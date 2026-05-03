@@ -1,40 +1,110 @@
-import json
-import os
-from app.data.models import UserProfile
+"""
+profile_manager.py - Gestionnaire des profils de candidature
 
-PROFILES_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "profiles")
+Ce module gere la sauvegarde et le chargement des profils utilisateur.
+Les profils sont stockes dans SQLite (table profiles), lies a l'utilisateur connecte.
+
+Avant, les profils etaient en fichiers JSON. On a migre vers SQLite pour :
+  → Lier le profil a un utilisateur (relation user_id → profiles)
+  → Beneficier des transactions SQL (pas de corruption de fichier)
+  → Centraliser toutes les donnees relationnelles dans une seule base
+
+La blacklist et la config restent en JSON/TXT car ce sont des donnees
+simples sans relations → approche NoSQL complementaire.
+"""
+
+import logging
+from app.data.models import UserProfile
+from app.data.database import Database
+
+logger = logging.getLogger(__name__)
 
 
 class ProfileManager:
-    def __init__(self, profiles_dir: str = PROFILES_DIR):
-        self.profiles_dir = profiles_dir
-        os.makedirs(self.profiles_dir, exist_ok=True)
+    """
+    Gere le profil de candidature d'un utilisateur dans SQLite.
 
-    def _path(self, name: str) -> str:
-        return os.path.join(self.profiles_dir, f"{name}.json")
+    Chaque utilisateur a un seul profil (contrainte UNIQUE sur user_id).
+    Le profil contient : nom, prenom, email, telephone, objet, message.
+    """
 
-    def save(self, profile: UserProfile, name: str = "default") -> None:
-        with open(self._path(name), "w", encoding="utf-8") as f:
-            json.dump(profile.to_dict(), f, indent=2, ensure_ascii=False)
+    def __init__(self, db: Database, user_id: int):
+        """
+        Args:
+            db: instance de Database pour les requetes SQL
+            user_id: id de l'utilisateur connecte
+        """
+        self.db = db
+        self.user_id = user_id
 
-    def load(self, name: str = "default") -> UserProfile:
-        path = self._path(name)
-        if not os.path.exists(path):
+    def save(self, profile: UserProfile) -> None:
+        """
+        Sauvegarde le profil en base.
+
+        Utilise INSERT OR REPLACE : si le profil existe deja pour cet utilisateur,
+        il est remplace. Sinon, il est cree. C'est un "upsert" simplifie.
+        (upsert = UPDATE si existe, INSERT sinon)
+        """
+        # Verifier si un profil existe deja pour cet utilisateur
+        existant = self.db.executer(
+            "SELECT id FROM profiles WHERE user_id = ?", (self.user_id,)
+        ).fetchone()
+
+        if existant:
+            # Mettre a jour le profil existant
+            self.db.executer(
+                """UPDATE profiles
+                   SET nom=?, prenom=?, email=?, telephone=?, objet=?, message=?
+                   WHERE user_id=?""",
+                (profile.nom, profile.prenom, profile.email,
+                 profile.telephone, profile.objet, profile.message, self.user_id),
+            )
+        else:
+            # Creer un nouveau profil
+            self.db.executer(
+                """INSERT INTO profiles (user_id, nom, prenom, email, telephone, objet, message)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (self.user_id, profile.nom, profile.prenom, profile.email,
+                 profile.telephone, profile.objet, profile.message),
+            )
+
+        self.db.commit()
+        logger.info(f"Profil sauvegarde pour l'utilisateur {self.user_id}")
+
+    def load(self) -> UserProfile:
+        """
+        Charge le profil de l'utilisateur depuis la base.
+
+        Returns:
+            UserProfile rempli si un profil existe, sinon un profil vide.
+        """
+        resultat = self.db.executer(
+            "SELECT nom, prenom, email, telephone, objet, message FROM profiles WHERE user_id = ?",
+            (self.user_id,),
+        ).fetchone()
+
+        if not resultat:
+            # Aucun profil enregistre, retourner un profil vide
             return UserProfile()
-        with open(path, "r", encoding="utf-8") as f:
-            return UserProfile.from_dict(json.load(f))
 
-    def exists(self, name: str = "default") -> bool:
-        return os.path.exists(self._path(name))
+        return UserProfile(
+            nom=resultat["nom"],
+            prenom=resultat["prenom"],
+            email=resultat["email"],
+            telephone=resultat["telephone"],
+            objet=resultat["objet"],
+            message=resultat["message"],
+        )
 
-    def list_profiles(self) -> list[str]:
-        if not os.path.exists(self.profiles_dir):
-            return []
-        return [f.replace(".json", "") for f in os.listdir(self.profiles_dir) if f.endswith(".json")]
+    def exists(self) -> bool:
+        """Verifie si un profil existe pour cet utilisateur."""
+        resultat = self.db.executer(
+            "SELECT id FROM profiles WHERE user_id = ?", (self.user_id,)
+        ).fetchone()
+        return resultat is not None
 
-    def delete(self, name: str) -> bool:
-        path = self._path(name)
-        if os.path.exists(path):
-            os.remove(path)
-            return True
-        return False
+    def delete(self) -> bool:
+        """Supprime le profil de l'utilisateur."""
+        self.db.executer("DELETE FROM profiles WHERE user_id = ?", (self.user_id,))
+        self.db.commit()
+        return True
